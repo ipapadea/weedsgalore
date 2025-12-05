@@ -1,0 +1,31 @@
+version: '3.8'
+
+services:
+  weedsgalore-train:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: weedsgalore:latest
+    runtime: nvidia
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
+      - PYTHONUNBUFFERED=1
+    volumes:
+      # Mount weedsgalore code
+      - ./:/workspace/weedsgalore
+      # Mount dataset
+      - /home/ilias/weedsgalore-dataset:/workspace/weedsgalore-dataset:ro
+      # Mount segdino repository (for SegDINO models)
+      - /home/ilias/segdino:/workspace/segdino:ro
+      # Mount output directory
+      - ./runs:/workspace/weedsgalore/runs
+    working_dir: /workspace/weedsgalore
+    ipc: host
+    shm_size: '16gb'
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
